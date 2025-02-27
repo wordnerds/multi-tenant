@@ -14,8 +14,8 @@
 
 namespace Hyn\Tenancy\Tests\Commands;
 
-use Hyn\Tenancy\Database\Console\Migrations\ResetCommand;
 use Hyn\Tenancy\Models\Website;
+use Hyn\Tenancy\Database\Console\Migrations\ResetCommand;
 
 class ResetCommandTest extends DatabaseCommandTest
 {

@@ -159,7 +159,7 @@ class HostnameRepositoryTest extends Test
         }
     }
 
-    protected function matchHostnames(): array
+    public static function matchHostnames(): array
     {
         return [
             ["xn-fsqu00a.xn-0zwm56d"],
@@ -185,7 +185,7 @@ class HostnameRepositoryTest extends Test
         ];
     }
 
-    protected function noMatchHostnames(): array
+    public static function noMatchHostnames(): array
     {
         return [
             ["-0-0O.COM"],
@@ -195,7 +195,7 @@ class HostnameRepositoryTest extends Test
         ];
     }
 
-    protected function duringSetUp(Application $app)
+    public function duringSetUp(Application $app)
     {
         $this->setUpWebsites();
         $this->setUpHostnames();

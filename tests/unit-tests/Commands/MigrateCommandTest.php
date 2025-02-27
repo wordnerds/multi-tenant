@@ -14,8 +14,8 @@
 
 namespace Hyn\Tenancy\Tests\Commands;
 
-use Hyn\Tenancy\Database\Console\Migrations\MigrateCommand;
 use Hyn\Tenancy\Models\Website;
+use Hyn\Tenancy\Database\Console\Migrations\MigrateCommand;
 
 class MigrateCommandTest extends DatabaseCommandTest
 {

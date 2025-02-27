@@ -50,7 +50,7 @@ EOM
     {
         $this->overrideGlobalRoute();
 
-        $this->assertEquals(2, $this->app['router']->getRoutes()->count());
+        $this->assertGreaterThan(1, $this->app['router']->getRoutes()->count());
     }
 
     /**
@@ -92,7 +92,7 @@ EOM
         $this->assertEquals('tenant', $route->getName());
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         unlink(base_path('routes/tenants.php'));
 

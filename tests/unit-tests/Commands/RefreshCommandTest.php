@@ -14,8 +14,8 @@
 
 namespace Hyn\Tenancy\Tests\Commands;
 
-use Hyn\Tenancy\Database\Console\Migrations\RefreshCommand;
 use Hyn\Tenancy\Models\Website;
+use Hyn\Tenancy\Database\Console\Migrations\RefreshCommand;
 
 class RefreshCommandTest extends DatabaseCommandTest
 {

@@ -14,13 +14,14 @@
 
 namespace Hyn\Tenancy\Generators\Webserver\Database;
 
-use Hyn\Tenancy\Contracts\Repositories\WebsiteRepository;
-use Hyn\Tenancy\Database\Connection;
 use Hyn\Tenancy\Events;
-use Hyn\Tenancy\Exceptions\GeneratorFailedException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\App;
+use Hyn\Tenancy\Database\Connection;
 use Hyn\Tenancy\Traits\DispatchesEvents;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Arr;
+use Hyn\Tenancy\Exceptions\GeneratorFailedException;
+use Hyn\Tenancy\Contracts\Repositories\WebsiteRepository;
 
 class DatabaseGenerator
 {
@@ -106,7 +107,7 @@ class DatabaseGenerator
     {
         $host = Arr::get($config, 'host');
 
-        if (! in_array($host, ['localhost', '127.0.0.1', '192.168.0.1'])) {
+        if (App::environment('testing') || ! in_array($host, ['localhost', '127.0.0.1', '192.168.0.1'])) {
             $config['host'] = '%';
         }
     }

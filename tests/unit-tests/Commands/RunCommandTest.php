@@ -14,7 +14,7 @@
 
 namespace Hyn\Tenancy\Tests\Commands;
 
-use App\Console\Kernel;
+use Illuminate\Foundation\Console\Kernel;
 use Hyn\Tenancy\Tests\Test;
 use Illuminate\Contracts\Foundation\Application;
 
@@ -28,7 +28,7 @@ class RunCommandTest extends Test
         $kernel->command('foo', function () {
         });
         $kernel->command('commandThatDoesNotExist', function () {
-            throw new \Exception;
+            throw new \Exception();
         });
         $kernel->command('with:args {foo} {--bar}', function () {
         });

@@ -28,7 +28,9 @@ use Illuminate\Support\Traits\Macroable;
 
 class Environment
 {
-    use DispatchesJobs, DispatchesEvents, Macroable;
+    use DispatchesJobs;
+    use DispatchesEvents;
+    use Macroable;
 
     /**
      * @var Application
@@ -83,6 +85,10 @@ class Environment
 
             return $hostname;
         });
+
+        if ($this->app->resolved(CurrentHostname::class)) {
+            $this->app->make(CurrentHostname::class);
+        }
     }
 
     /**

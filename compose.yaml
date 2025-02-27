@@ -1,0 +1,18 @@
+volumes:
+    mysql-data:
+
+services:
+    mysql:
+        image: biarms/mysql:5.7
+        container_name: mysql
+        tty: true
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./mysql/custom.cnf:/etc/mysql/conf.d/custom.cnf
+            - mysql-data:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: tenancy
+            MYSQL_ROOT_PASSWORD: secret
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
