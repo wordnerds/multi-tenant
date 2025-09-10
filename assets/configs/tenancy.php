@@ -207,6 +207,24 @@ return [
          */
         'password-generator' => Hyn\Tenancy\Generators\Database\DefaultPasswordGenerator::class,
 
+        /*
+        |--------------------------------------------------------------------------
+        | Tenant Squashed SQL Path
+        |--------------------------------------------------------------------------
+        |
+        | Specify the absolute path to a .sql file that should be used to
+        | set up the initial schema for a new tenant. This is useful for
+        | loading a "squashed" schema from a single file instead of
+        | running a large number of migrations.
+        |
+        | This SQL file is executed immediately after the tenant database is
+        | created, and *before* any pending tenant migrations are run.
+        |
+        | Set to `null` to disable this feature.
+        |
+        */
+        'tenant-squashed-sql-path' => database_path('schema/tenant-schema.sql'),
+
         /**
          * The tenant migrations to be run during creation of a tenant. Specify a directory
          * to run the migrations from. If specified these migrations will be executed

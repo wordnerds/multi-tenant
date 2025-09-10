@@ -45,14 +45,49 @@ class MariaDB implements DatabaseGenerator
         $privileges = config('tenancy.db.tenant-database-user-privileges', null) ?? 'ALL';
 
         $grant = "GRANT $privileges ON `{$config['database']}`.* TO `{$config['username']}`@'{$config['host']}'";
-
+        $created = false;
         if ($createUser) {
-            return $connection->system($event->website)->statement($user)
+            $created = $connection->system($event->website)->statement($user)
                 && $connection->system($event->website)->statement($create)
                 && $connection->system($event->website)->statement($grant);
+        } else {
+            $created = $connection->system($event->website)->statement($create);
+        }
+        if ($created) {
+            $this->loadSquashedSql($event->website, $connection);
+        }
+        return $created;
+    }
+
+    protected function loadSquashedSql(Website $website, Connection $connection)
+    {
+        $sqlPath = config('tenancy.db.tenant-squashed-sql-path');
+
+        if (!$sqlPath || !file_exists($sqlPath)) {
+            return;
         }
 
-        return $connection->system($event->website)->statement($create);
+        // Switch to tenant connection
+        $connection->set($website);
+
+        try {
+            // It's the user's responsibility to ensure the SQL file is safe and valid.
+            \Illuminate\Support\Facades\DB::connection('tenant')->unprepared(file_get_contents($sqlPath));
+
+            \Illuminate\Support\Facades\Log::info("Successfully imported squashed schema for tenant {$website->uuid} from {$sqlPath}");
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to import squashed schema for tenant {$website->uuid} from {$sqlPath}. Error: " . $e->getMessage());
+
+            // Switch back to system connection before throwing
+            $connection->restore();
+
+            // Re-throw the exception to halt the website creation process.
+            throw new \Hyn\Tenancy\Exceptions\GeneratorFailedException("Failed to import squashed schema: " . $e->getMessage(), $e->getCode(), $e);
+        }
+
+        // Switch back to system connection
+        $connection->restore();
     }
 
     /**
