@@ -79,15 +79,15 @@ class MariaDB implements DatabaseGenerator
         } catch (\Illuminate\Database\QueryException $e) {
             \Illuminate\Support\Facades\Log::error("Failed to import squashed schema for tenant {$website->uuid} from {$sqlPath}. Error: " . $e->getMessage());
 
-            // Switch back to system connection before throwing
-            $connection->restore();
+            // Purge the tenant connection before throwing
+            $connection->purge();
 
             // Re-throw the exception to halt the website creation process.
             throw new \Hyn\Tenancy\Exceptions\GeneratorFailedException("Failed to import squashed schema: " . $e->getMessage(), $e->getCode(), $e);
         }
 
-        // Switch back to system connection
-        $connection->restore();
+        // Purge the tenant connection to revert to the system default
+        $connection->purge();
     }
 
     /**
