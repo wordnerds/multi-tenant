@@ -22,6 +22,8 @@ use Hyn\Tenancy\Events\Websites\Deleted;
 use Hyn\Tenancy\Events\Websites\Updated;
 use Hyn\Tenancy\Exceptions\GeneratorFailedException;
 use Hyn\Tenancy\Contracts\Webserver\DatabaseGenerator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MariaDB implements DatabaseGenerator
 {
@@ -46,13 +48,52 @@ class MariaDB implements DatabaseGenerator
 
         $grant = "GRANT $privileges ON `{$config['database']}`.* TO `{$config['username']}`@'{$config['host']}'";
 
+        $created = false;
+
         if ($createUser) {
-            return $connection->system($event->website)->statement($user)
+            $created = $connection->system($event->website)->statement($user)
                 && $connection->system($event->website)->statement($create)
                 && $connection->system($event->website)->statement($grant);
+        } else {
+            $created = $connection->system($event->website)->statement($create);
         }
 
-        return $connection->system($event->website)->statement($create);
+        if ($created) {
+            $this->loadSquashedSql($event->website, $connection);
+        }
+
+        return $created;
+    }
+
+    protected function loadSquashedSql(Website $website, Connection $connection)
+    {
+        $sqlPath = config('tenancy.db.tenant-squashed-sql-path');
+
+        if (!$sqlPath || !file_exists($sqlPath)) {
+            return;
+        }
+
+        // Switch to tenant connection
+        $connection->set($website);
+
+        try {
+            // It's the user's responsibility to ensure the SQL file is safe and valid.
+            DB::connection('tenant')->unprepared(file_get_contents($sqlPath));
+
+            Log::info("Successfully imported squashed schema for tenant {$website->uuid} from {$sqlPath}");
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            Log::error("Failed to import squashed schema for tenant {$website->uuid} from {$sqlPath}. Error: " . $e->getMessage());
+
+            // Purge the tenant connection before throwing
+            $connection->purge();
+
+            // Re-throw the exception to halt the website creation process.
+            throw new GeneratorFailedException("Failed to import squashed schema: " . $e->getMessage(), $e->getCode(), $e);
+        }
+
+        // Purge the tenant connection to revert to the system default
+        $connection->purge();
     }
 
     /**
